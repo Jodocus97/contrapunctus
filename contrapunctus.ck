@@ -68,31 +68,31 @@ while(true){
     Math.random2(0, 100) => int prob1;
     Math.random2(0, 100) => int prob2;
     if(prob1 >= 80 && jump != 1){
+      0 => jump;
       if(prob2 >= 50){
         <<<"Step up">>>;
         prevInterval[0] + grSekunde => currentInterval[0];
-      } else{
+      } else if(prob2 < 50 || prevInterval[0] > 80){
         <<<"Step down">>>;
         prevInterval[0] - grSekunde => currentInterval[0];
-        0 => jump;
       }
     } else{
       1 => jump;
       if(prob2 >= 70){
-        if(prob2 > 80){
+        if(prob2 > 80 || prevInterval[0] < 40){
           <<<"Jump of a third up">>>;
           prevInterval[0] + grTerz => currentInterval[0];
-        } else{
+        } else if (prob2 < 80 || prevInterval[0] > 80){
           <<<"Jump of a third down">>>;
           prevInterval[0] - grTerz => currentInterval[0];
         }
       } else if(prob2 > 40){
-        if(prob2 > 55){
+        if(prob2 > 55 || prevInterval[0] < 40){
           <<<"Jump of a lower sixth up">>>;
-          prevInterval[0] - klSexte => currentInterval[0];
-        } else{
-          <<<"Jump of a lower sixth down">>>;
           prevInterval[0] + klSexte => currentInterval[0];
+        } else if(prob2 < 55 || prevInterval[0] > 80){
+          <<<"Jump of a lower sixth down">>>;
+          prevInterval[0] - klSexte => currentInterval[0];
         }
       }
     }
