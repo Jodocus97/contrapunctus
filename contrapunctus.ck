@@ -1,4 +1,4 @@
-SinOsc voice1 => dac;
+TriOsc voice1 => dac;
 SinOsc voice2 => dac;
 
 //gain auf 0.5 setzen, damit´s nicht zu laut wird.
@@ -46,6 +46,8 @@ int nextInterval[2];
 1 => int isImperfect;
 0 => int isPerfect;
 
+0 => int jump;
+0 => int start;
 fun int getPerfectInterval(int n){
   return perfectCons[Math.random2(0,n-1)];
 }
@@ -54,53 +56,80 @@ fun int getImperfectInterval(int n){
   return imperfectCons[Math.random2(0,n-1)];
 }
 
-
 while(true){
   <<< "Start the Music" >>>;
   int tempInterval;
-  if(isPerfect){
-    Math.random2(60, 72) => f1;
-    f1 => currentInterval[0];
-    <<< "Call getPerfectInterval">>>;
-    getPerfectInterval(perfectCons.size()) => tempInterval;
-
-    if(tempInterval == prime){
-      <<<"Prime">>>;
-      quinte => tempInterval;
+  if(start == 0){
+    <<<"initialise first tone">>>;
+    Math.random2(60, 72) => currentInterval[0];
+    <<<"First tone is: ", currentInterval[0]>>>;
+    1 => start;
+  }else{
+    Math.random2(0, 100) => int prob1;
+    Math.random2(0, 100) => int prob2;
+    if(prob1 >= 80 && jump != 1){
+      if(prob2 >= 50){
+        <<<"Step up">>>;
+        prevInterval[0] + grSekunde => currentInterval[0];
+      } else{
+        <<<"Step down">>>;
+        prevInterval[0] - grSekunde => currentInterval[0];
+        0 => jump;
+      }
+    } else{
+      1 => jump;
+      if(prob2 >= 70){
+        if(prob2 > 80){
+          <<<"Jump of a third up">>>;
+          prevInterval[0] + grTerz => currentInterval[0];
+        } else{
+          <<<"Jump of a third down">>>;
+          prevInterval[0] - grTerz => currentInterval[0];
+        }
+      } else if(prob2 > 40){
+        if(prob2 > 55){
+          <<<"Jump of a lower sixth up">>>;
+          prevInterval[0] - klSexte => currentInterval[0];
+        } else{
+          <<<"Jump of a lower sixth down">>>;
+          prevInterval[0] + klSexte => currentInterval[0];
+        }
+      }
     }
-    <<<"Calculate new Interval">>>;
-    f1 + tempInterval => f2 => currentInterval[1];
-    <<<"Send notes to the oscillator">>>;
-    Std.mtof(currentInterval[0]) => voice1.freq;
-    Std.mtof(currentInterval[1]) => voice2.freq;
-    currentInterval[0] => prevInterval[0];
-    currentInterval[1] => prevInterval[1];
+  }
+    if(isPerfect == 0){
+      <<< "Call getPerfectInterval">>>;
+      getPerfectInterval(perfectCons.size()) => tempInterval;
+      if(tempInterval == prime){
+        <<<"Prime">>>;
+        quinte => tempInterval;
+      }
+      <<<"Calculate new Interval">>>;
+      currentInterval[0]+ tempInterval => currentInterval[1];
+      <<<"Send notes to the oscillator">>>;
+      Std.mtof(currentInterval[0]) => voice1.freq;
+      Std.mtof(currentInterval[1]) => voice2.freq;
+      currentInterval[0] => prevInterval[0];
+      currentInterval[1] => prevInterval[1];
     
-    <<<"Switch to imPerfect">>>;
-    isPerfectInterval(tempInterval) => isPerfect;
-    isImperfectInterval(tempInterval) => isImperfect;
+      <<<"Switch to imPerfect">>>;
+      1 => isPerfect;
+      <<< currentInterval[0], currentInterval[1] >>>;
+    } else{
+      <<<"Call getImperfectInterval">>>;
+      getImperfectInterval(imperfectCons.size()) => tempInterval;
 
-    <<< currentInterval[0], currentInterval[1] >>>;
-  }
-
-  ganze => now;
-  if(isImperfect){
-    Math.random2(60, 72) => f1;
-    f1 => currentInterval[0];
-    <<<"Call getImperfectInterval">>>;
-    getImperfectInterval(imperfectCons.size()) => tempInterval;
-
-    <<<"Calculate new Interval">>>;
-    f1 + tempInterval => f2 => currentInterval[1];
-    <<<"Send notes to the oscillator">>>;
-    Std.mtof(currentInterval[0]) => voice1.freq;
-    Std.mtof(currentInterval[1]) => voice2.freq;
-    currentInterval[0] => prevInterval[0];
-    currentInterval[1] => prevInterval[1];
-    <<<"Switch to Perfect INterval">>>;
-    isPerfectInterval(tempInterval) => isPerfect;
-    isImperfectInterval(tempInterval) => isImperfect;
-    <<< currentInterval[0], currentInterval[1] >>>;
-  }
+      <<<"Calculate new Interval">>>;
+      currentInterval[0] + tempInterval => currentInterval[1];
+      <<<"Send notes to the oscillator">>>;
+      Std.mtof(currentInterval[0]) => voice1.freq;
+      Std.mtof(currentInterval[1]) => voice2.freq;
+      currentInterval[0] => prevInterval[0];
+      currentInterval[1] => prevInterval[1];
+      <<<"Switch to Perfect INterval">>>;
+      0 => isPerfect;
+      <<< currentInterval[0], currentInterval[1] >>>;
+    }
+  
   viertel => now;
 }
