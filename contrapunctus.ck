@@ -36,12 +36,9 @@ achtel / 2 => dur sechzehntel;
 [prime, quarte, quinte, oktave] @=> int perfectCons[];
 [klTerz, grTerz, klSexte, grSexte] @=> int imperfectCons[];
 
-int f1;
-int f2;
-
 int prevInterval[2];
 int currentInterval[2];
-int nextInterval[2];
+//int nextInterval[2];
 
 1 => int isImperfect;
 0 => int isPerfect;
@@ -68,8 +65,7 @@ while(true){
     Math.random2(0, 100) => int prob1;
     Math.random2(0, 100) => int prob2;
     if(prob1 >= 80 && jump != 1){
-      0 => jump;
-      if(prob2 >= 50){
+      if(prob2 >= 50 && prevInterval[0] <= 90){
         <<<"Step up">>>;
         prevInterval[0] + grSekunde => currentInterval[0];
       } else if(prob2 < 50 || prevInterval[0] > 80){
@@ -131,5 +127,10 @@ while(true){
       <<< currentInterval[0], currentInterval[1] >>>;
     }
   
-  viertel => now;
+  notenwerte[Math.random2(0, notenwerte.size()-1)] => now;
 }
+
+/* 
+Notenlisten mit Gewichtungen; Präferenzregeln
+
+*/
